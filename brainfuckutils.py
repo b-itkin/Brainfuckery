@@ -39,19 +39,29 @@ return 0;
 class BracketStack:
 	program=""
 	bracket_level=0
+	positionList=[]
 		
 	def __init__(self,program_=None):
 		self.program=program_	
-	def push(self):
+	def pushChk(self):
 		self.bracket_level+=1
-	def pop(self):
+	def popChk(self):
 		self.bracket_level-=1
+	def push(self,position):
+		self.bracket_level+=1
+		self.positionList.append(position)
+	def pop(self):
+		if (self.bracket_level==0):
+			return -1 #Danger will robinson!
+		else:
+			self.bracket_level-=1
+			return positionList.pop()
 	def checkBrackets(self):
 		for c in self.program:
 			if c is '[':
-				self.push()
+				self.pushChk()
 			elif c is ']':
-				self.pop()
+				self.popChk()
 		if self.bracket_level is not 0:
 			return 1
 		else:
