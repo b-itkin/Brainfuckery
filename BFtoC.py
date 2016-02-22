@@ -6,6 +6,7 @@
 #Class: CS-1310 Boese
 #Program: A Simple Brainfuck Compiler
 #Description: Compiles a brainfuck program from sys.argv[1] to C, and optionally then from C to executable format
+import os
 import sys
 from brainfuckutils import *
 
@@ -34,6 +35,7 @@ def main():
 	output.close()	
 	programFile.close()
 	
+	os.system("gcc {0} -o {1}.out".format(sys.argv[2],sys.argv[2].strip(".c")))
 
 if __name__=="__main__":
 	main()
