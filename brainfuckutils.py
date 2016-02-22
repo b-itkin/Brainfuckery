@@ -1,4 +1,9 @@
 #!/usr/bin/python3
+#Author: Brady Itkin
+#Date created: 2/19/2016
+#Last modified 2/21/2016
+#Part of a simple brainfuck compiler program
+#Initial research for this code done on www.en.wikipedia.org/wiki/Brainfuck
 #########################
 from string import Template
 

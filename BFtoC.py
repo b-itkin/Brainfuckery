@@ -3,7 +3,8 @@
 #Author: Brady Itkin
 #Created: 2/19/15
 #Last modified: 2/19/15
-#Program: Simple Brainfuck Compiler
+#Class: CS-1310 Boese
+#Program: A Simple Brainfuck Compiler
 #Description: Compiles a brainfuck program from sys.argv[1] to C, and optionally then from C to executable format
 import sys
 from brainfuckutils import *
