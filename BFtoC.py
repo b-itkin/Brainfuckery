@@ -10,7 +10,8 @@ import sys
 from brainfuckutils import *
 
 MAXPROGRAMSIZE=90000
-TAPESIZE=1024
+TAPESIZE=4096
+
 def checkReturnStatus(returnCode):
 	if (returnCode==MISMATCH_BRACKET):
 		print("Syntax error: Mismatched Brackets")

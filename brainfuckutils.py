@@ -6,12 +6,21 @@
 #Initial research for this code done on www.en.wikipedia.org/wiki/Brainfuck
 #########################
 from string import Template
+import sys
 
 #Compile return codes
 SUCCESS=0
 MISMATCH_BRACKET=1
 PROGRAMSIZE=2
 
+#Interpreter behavior
+########################
+#Cell sizes:
+MAXVAL_CHAR=0 #-128 to 127
+MAXVAL_UCHAR=1 #0 to 255
+MAXVAL_INT=2 #-sys.maxsize to sys.maxsize
+
+#output C header
 header=Template("""#include <stdio.h>
 #include <stdlib.h>
 #define TAPESIZE $tapesz
@@ -31,7 +40,7 @@ class BracketStack:
 	program=""
 	bracket_level=0
 		
-	def __init__(self,program_):
+	def __init__(self,program_=None):
 		self.program=program_	
 	def push(self):
 		self.bracket_level+=1
@@ -48,7 +57,17 @@ class BracketStack:
 		else:
 			return 0
 
- 
+class BrainFuckInterpreter:
+	maxvaluemode=MAXVAL_INT
+	tapesize=0
+	tape=None
+	tape_index=0
+	
+	def __init__(self,maxval,tapesz):
+		maxvaluemode=maxval
+		tapesize=tapesz
+
+	 
 class BrainFuckParser:
 	program=""
 	maxvalue=0
