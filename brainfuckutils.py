@@ -8,18 +8,21 @@
 from string import Template
 import sys
 
-#Compile return codes
+#Compiler/interpreter error return codes
+########################################
 SUCCESS=0
 MISMATCH_BRACKET=1
 PROGRAMSIZE=2
-
+MAXTAPESIZE=3
+MAXVALUE=4
+########################
 #Interpreter behavior
 ########################
 #Cell sizes:
 MAXVAL_CHAR=0 #-128 to 127
 MAXVAL_UCHAR=1 #0 to 255
 MAXVAL_INT=2 #-sys.maxsize to sys.maxsize
-
+#########################################
 #output C header
 header=Template("""#include <stdio.h>
 #include <stdlib.h>
@@ -68,16 +71,78 @@ class BracketStack:
 			return 0
 
 class BrainFuckInterpreter:
+	program=""
 	maxvaluemode=MAXVAL_INT
+	maxvalue=sys.maxsize
 	tapesize=0
 	tape=None
 	tape_index=0
+	bracketControl=BracketStack()
+	program_position=0
 	
-	def __init__(self,maxval,tapesz):
-		maxvaluemode=maxval
-		tapesize=tapesz
+	def __init__(self,maxval,tapesz,program=None):
+		self.maxvaluemode=maxval
+		#TODO: Maxvalue
+		self.tapesize=tapesz
+		self.initializeInterpreter()
+		self.program=program
+	def initializeInterpreter(self):
+		self.tape=[]
+		for i in range(self.tapesize):
+			self.tape.append(0)
+	
+	def executeCommand(self,command):		
+		temp_position=0
+		inputchar="CC"		
+		if (command=='>'):
+			if (self.tape_index+1==self.tapesize):
+				return MAXTAPESIZE			
+			self.tape_index+=1
+			self.program_position+=1
+			return SUCCESS
+		elif (command=='<'):
+			if (0-self.tape_index==self.tapesize)
+				return MAXTAPESIZE
+			self.tape_index-=1
+			self.program_position+=1
+			return SUCCESS
+		elif (command=='+'):
+			if (self.maxvalue==self.tape[self.tape_index]+1):
+				return MAXVALUE	
+			self.tape[self.tape_index]+=1
+			self.program_position+=1
+			return SUCCESS
+		elif (command=='-'):
+			if (self.maxvalue==0-self.tape[self.tape_index]+1):
+				return MAXVALUE
+			self.tape[self.tape_index]-=1
+			self.program_position+=1
+			return SUCCESS
+		elif (command=='['):
+			
+			if (self.tape[self.tape_index]==0):
+				self.skipToRightBracket()
+				return SUCCESS
+				#self.bracketControl.pop()
+			self.bracketControl.push(self.program_position)
+			self.program_position+=1
+			return SUCCESS
+		elif (command==']'):
+			temp_position=self.bracketControl.pop()
+	 		if (temp_position==-1):
+				return MISMATCH_BRACKET
+			self.program_position=temp_position
+			return SUCCESS
+		elif (command=='.'):
+			print(chr(self.tape[tape_index]))
+			self.program_position+=1
+			return SUCCESS
+		elif (command==','):
+			while (len(inputchar)!=1):
+				inputchar=input("Input ONE character: ")
+			self.tape[self.tape_index]=ord(inputchar)
+			self.program_position+=1
 
-	 
 class BrainFuckParser:
 	program=""
 	maxvalue=0
