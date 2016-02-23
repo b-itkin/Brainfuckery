@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 #Author: Brady Itkin
 #Date created: 2/19/2016
-#Last modified 2/21/2016
-#Part of a simple brainfuck compiler program
+#Last modified 2/23/2016
+#Part of my CS project
 #Initial research for this code done on www.en.wikipedia.org/wiki/Brainfuck
 #########################
 from string import Template
@@ -12,7 +12,7 @@ import sys
 ########################################
 SUCCESS=0
 MISMATCH_BRACKET=1
-PROGRAMSIZE=2
+#PROGRAMSIZE=2
 MAXTAPESIZE=3
 MAXVALUE=4
 END=5
@@ -21,7 +21,7 @@ END=5
 ########################
 #Cell sizes:
 MAXVAL_CHAR=0 #-128 to 127
-MAXVAL_UCHAR=1 #0 to 255
+#MAXVAL_UCHAR=1 #0 to 255
 MAXVAL_INT=2 #-sys.maxsize to sys.maxsize
 #########################################
 #output C header and footer
@@ -52,9 +52,9 @@ class BracketStack:
 		
 	def __init__(self,program_=None):
 		self.program=program_	
-	def pushChk(self): #Used by compiler
+	def pushChk(self): #Used by compiler and interpreter
 		self.bracket_level+=1
-	def popChk(self): #Used by compiler
+	def popChk(self): #Used by compiler and interpreter
 		self.bracket_level-=1
 	def push(self,position): #Used by interpeter
 		self.bracket_level+=1
@@ -75,28 +75,34 @@ class BracketStack:
 			return 1
 		else:
 			return 0
-
+########################################################################################
+#Class: BrainFuckInterpreter
+#The class that handles interpreting Brainfuck if the - option on the commandline is used
+#########################################################################################
 class BrainFuckInterpreter:
-	program=None
-	maxvaluemode=MAXVAL_INT
+	program=None #String
+	maxvaluemode=MAXVAL_INT 
 	maxvalue=sys.maxsize
 	tapesize=0
 	tape=None
 	tape_index=0
 	bracketControl=BracketStack()
-	program_position=0
+	program_position=0 #Where we are in the program
 	
 	def __init__(self,maxval,tapesz,program=None):
 		self.maxvaluemode=maxval
-		#TODO: Maxvalue
 		self.tapesize=tapesz
 		self.initializeInterpreter()
-		self.program=program #TODO check brackets
+		self.program=program
 	def initializeInterpreter(self):
 		self.tape=[]
 		for i in range(self.tapesize):
 			self.tape.append(0)
-	
+		if (self.maxvaluemode==MAXVAL_INT):
+			self.maxvalue=sys.maxsize
+		elif (self.maxvaluemode==MAXVAL_CHAR):
+			self.maxvalue=127
+
 	def loadCommands(self,commands,checkBrackets=True):
 		bracketChecker=None		
 		if (checkBrackets):
@@ -132,60 +138,59 @@ class BrainFuckInterpreter:
 		self.program_position+=displacement
 		return SUCCESS
 	def executeCommand(self,command):		
-		temp_position=0
-		inputchar="CC"		
-		if (command=='>'):
+		temp_position=0 #Initialize to garbage
+		inputchar="CC" #Initialize to garbage		
+		if (command=='>'): #Move the index to the right one
 			if (self.tape_index+1==self.tapesize):
 				return MAXTAPESIZE			
 			self.tape_index+=1
 			self.program_position+=1
 			return SUCCESS
-		elif (command=='<'):
+		elif (command=='<'): #Move the index to the left one
 			if (0-self.tape_index==self.tapesize):
 				return MAXTAPESIZE
 			self.tape_index-=1
 			self.program_position+=1
 			return SUCCESS
-		elif (command=='+'):
+		elif (command=='+'): #Add one to the current value on the tape
 			if (self.maxvalue==self.tape[self.tape_index]+1):
 				return MAXVALUE	
 			self.tape[self.tape_index]+=1
 			self.program_position+=1
 			return SUCCESS
-		elif (command=='-'):
+		elif (command=='-'): #Subtract one to the current value on the tape
 			if (self.maxvalue==0-self.tape[self.tape_index]+1):
 				return MAXVALUE
 			self.tape[self.tape_index]-=1
 			self.program_position+=1
 			return SUCCESS
-		elif (command=='['):
+		elif (command=='['): #"while(*pointer) {"
 			
 			if (self.tape[self.tape_index]==0):
 				self.skipToRightBracket()
 				return SUCCESS
-				#self.bracketControl.pop()
+				
 			self.bracketControl.push(self.program_position)
-			#print("Push!")
+			
 			self.program_position+=1
 			return SUCCESS
-		elif (command==']'):
+		elif (command==']'): #"}"
 			temp_position=self.bracketControl.pop()
-			#print("Pop!")
+			
 			if (temp_position==-1):
 				return MISMATCH_BRACKET
 			self.program_position=temp_position
 			return SUCCESS
-		elif (command=='.'):
+		elif (command=='.'): #Print the character on the tape to the screen
 			#print("Printing...")
 			print(chr(self.tape[self.tape_index]),end="")
 			self.program_position+=1
 			return SUCCESS
-		elif (command==','):
+		elif (command==','): #Take input from the user
 			while (len(inputchar)!=1):
 				inputchar=input("Input ONE character: ")
-			self.tape[self.tape_index]=ord(inputchar)
+			self.tape[self.tape_index]=ord(inputchar) #Ord converts the character to a python integer, because it's an object, not just a simple number like in C :(
 			self.program_position+=1
-		#elif (command==EOF TODO
 
 		else:
 			self.program_position+=1
@@ -195,19 +200,19 @@ class BrainFuckInterpreter:
 class BrainFuckParser:
 	program=""
 	maxvalue=0
-	maxprogramsize=0
+	#maxprogramsize=0
 	tapesize=0
 	commandDict={">":"++pointer;\n", "<":"--pointer;\n", "+":"++*pointer;\n", "-":"--*pointer;\n", \
-		".":"putchar(*pointer);\n", ",":"*pointer=getchar();\n", "[":"while (*pointer) {\n", "]":"}"} 
+		".":"putchar(*pointer);\n", ",":"*pointer=getchar();\n", "[":"while (*pointer) {\n", "]":"}"} #Since I didn't have the time to put in optimizations, this'll do for now.
 	return_code=0
 	def __init__(self,program_,maxprogamsize_,tapesize_):
 		self.program=program_
 		#maxvalue=maxvalue_
 		#self.maxprogramsize=maxprogramsize_
 		self.tapesize=tapesize_
-	def checkProgramSize(self):
-		#TODO
-		return 0		
+	#def checkProgramSize(self):
+	#	
+	#	return 0		
 	def checkBrackets(self):
 		bracketChecker=BracketStack(self.program)
 		if not bracketChecker.checkBrackets():
@@ -223,20 +228,20 @@ class BrainFuckParser:
 	def generateHeader(self):
 		return header.substitute(tapesz=self.tapesize)	
 	def compileProgram(self):
-		returnTuple=None
-		compiledCProg=None
+		returnTuple=None #What we'll return to main()
+		compiledCProg=None #returnTuple[1]
 		token=""
-		if (self.checkProgramSize()):
-			returnTuple=(PROGRAMSIZE,None)
-			return returnTuple
-		elif (self.checkBrackets()):
+		#if (self.checkProgramSize()):
+		#	returnTuple=(PROGRAMSIZE,None)
+		#	return returnTuple
+		if (self.checkBrackets()):
 			returnTuple=(MISMATCH_BRACKET,None)
 			return returnTuple
 		compiledCProg=self.generateHeader()
 		for c in self.program:
 			token=self.substitute(c)
 			if (token is not None):
-				compiledCProg=compiledCProg+token
+				compiledCProg=compiledCProg+token 
 		
 		compiledCProg=compiledCProg+footer
 		returnTuple=(0,compiledCProg)
