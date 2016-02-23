@@ -114,13 +114,21 @@ class BrainFuckInterpreter:
 		else:
 			return self.executeCommand(self.program[self.program_position])
 	def skipToRightBracket(self):
-		displacement=0
-		for c in self.program[self.program_position:]:
-			if (c==']'):
-				displacement+=1 #needs to be character after the right bracket
+		displacement=1
+		bracketChk=BracketStack()
+		for c in self.program[self.program_position+1:]:
+			if (c=='['):
+				bracketChk.pushChk()
+				displacement+=1			
+			elif (c==']' and bracketChk.bracket_level==0):
+				displacement+=1 #We want the command after the ]
 				break
+			elif (c==']'):
+				bracketChk.popChk()
+				displacement+=1
 			else:
 				displacement+=1
+		
 		self.program_position+=displacement
 		return SUCCESS
 	def executeCommand(self,command):		
@@ -157,16 +165,19 @@ class BrainFuckInterpreter:
 				return SUCCESS
 				#self.bracketControl.pop()
 			self.bracketControl.push(self.program_position)
+			#print("Push!")
 			self.program_position+=1
 			return SUCCESS
 		elif (command==']'):
 			temp_position=self.bracketControl.pop()
+			#print("Pop!")
 			if (temp_position==-1):
 				return MISMATCH_BRACKET
 			self.program_position=temp_position
 			return SUCCESS
 		elif (command=='.'):
-			print(chr(self.tape[tape_index]))
+			#print("Printing...")
+			print(chr(self.tape[self.tape_index]),end="")
 			self.program_position+=1
 			return SUCCESS
 		elif (command==','):

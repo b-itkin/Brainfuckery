@@ -13,9 +13,26 @@ MAXPROGRAMSIZE=90000
 TAPESIZE=4096
 
 def checkReturnStatus(returnCode):
+	##Compiler/interpreter error return codes
+	########################################
+	#SUCCESS=0
+	#MISMATCH_BRACKET=1
+	#PROGRAMSIZE=2
+	#MAXTAPESIZE=3
+	#MAXVALUE=4
+	#END=5
 	if (returnCode==MISMATCH_BRACKET):
 		print("Syntax error: Mismatched Brackets")
 		exit(1)
+	elif (returnCode==MAXTAPESIZE):
+		print("Runtime error: Maximum tape-size reached")
+		exit(3)
+	elif (returnCode==MAXVALUE):
+		print("Runtime error: Maximum cell-size reached")
+		exit(4)
+	elif (returnCode==END):
+		print("Runtime: Program end")
+		exit(0)
 	else:
 		return 0
 
