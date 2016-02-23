@@ -20,10 +20,18 @@ def checkReturnStatus(returnCode):
 		return 0
 
 def startInterpreter():
-	#TODO
-	pass
+	#TODO: better file and user-input handling
+	programf=open(sys.argv[1])
+	program=programf.read()
+	programf.close()	
+	interpreter=BrainFuckInterpreter(MAXVAL_INT,TAPESIZE,program)
+	while (not checkReturnStatus(interpreter.nextCommand())):
+		pass
+	#print("Instructions performed: "+str(ticker))
+	exit(0)
+		
 def main():
-	if (len(sys.argv)!=3 and sys.argv[len(sys.argv)-1]=="-"):
+	if (sys.argv[len(sys.argv)-1]=="-"):
 		startInterpreter()
 	elif (len(sys.argv)!=3):
 		print("Usage: brainfucktoc Infile.bf Outfile.c")

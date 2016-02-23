@@ -15,6 +15,7 @@ MISMATCH_BRACKET=1
 PROGRAMSIZE=2
 MAXTAPESIZE=3
 MAXVALUE=4
+END=5
 ########################
 #Interpreter behavior
 ########################
@@ -23,7 +24,8 @@ MAXVAL_CHAR=0 #-128 to 127
 MAXVAL_UCHAR=1 #0 to 255
 MAXVAL_INT=2 #-sys.maxsize to sys.maxsize
 #########################################
-#output C header
+#output C header and footer
+#########################################
 header=Template("""#include <stdio.h>
 #include <stdlib.h>
 #define TAPESIZE $tapesz
@@ -39,6 +41,10 @@ footer="""free(tape);
 return 0;
 }
 """
+##########################################
+#Class: BracketStack
+#Performs all checks on brainfuck brackets for compiler and interpreter
+############################################
 class BracketStack:
 	program=""
 	bracket_level=0
@@ -46,19 +52,19 @@ class BracketStack:
 		
 	def __init__(self,program_=None):
 		self.program=program_	
-	def pushChk(self):
+	def pushChk(self): #Used by compiler
 		self.bracket_level+=1
-	def popChk(self):
+	def popChk(self): #Used by compiler
 		self.bracket_level-=1
-	def push(self,position):
+	def push(self,position): #Used by interpeter
 		self.bracket_level+=1
 		self.positionList.append(position)
-	def pop(self):
+	def pop(self): #Used by interpeter
 		if (self.bracket_level==0):
-			return -1 #Danger will robinson!
+			return -1 #Danger will robinson! Mismatching brackets.
 		else:
 			self.bracket_level-=1
-			return positionList.pop()
+			return self.positionList.pop()
 	def checkBrackets(self):
 		for c in self.program:
 			if c is '[':
@@ -71,7 +77,7 @@ class BracketStack:
 			return 0
 
 class BrainFuckInterpreter:
-	program=""
+	program=None
 	maxvaluemode=MAXVAL_INT
 	maxvalue=sys.maxsize
 	tapesize=0
@@ -85,14 +91,38 @@ class BrainFuckInterpreter:
 		#TODO: Maxvalue
 		self.tapesize=tapesz
 		self.initializeInterpreter()
-		self.program=program
+		self.program=program #TODO check brackets
 	def initializeInterpreter(self):
 		self.tape=[]
 		for i in range(self.tapesize):
 			self.tape.append(0)
 	
-	def load
-	
+	def loadCommands(self,commands,checkBrackets=True):
+		bracketChecker=None		
+		if (checkBrackets):
+			bracketChecker=BracketStack(commands)
+			if (bracketChecker.checkBrackets()):
+				return MISMATCH_BRACKET
+		if (self.program is None):
+			self.program=commands
+			return SUCCESS		
+		self.program+=commands
+		return SUCCESS
+	def nextCommand(self):
+		if (self.program_position>=len(self.program)):
+			return END
+		else:
+			return self.executeCommand(self.program[self.program_position])
+	def skipToRightBracket(self):
+		displacement=0
+		for c in self.program[self.program_position:]:
+			if (c==']'):
+				displacement+=1 #needs to be character after the right bracket
+				break
+			else:
+				displacement+=1
+		self.program_position+=displacement
+		return SUCCESS
 	def executeCommand(self,command):		
 		temp_position=0
 		inputchar="CC"		
@@ -103,7 +133,7 @@ class BrainFuckInterpreter:
 			self.program_position+=1
 			return SUCCESS
 		elif (command=='<'):
-			if (0-self.tape_index==self.tapesize)
+			if (0-self.tape_index==self.tapesize):
 				return MAXTAPESIZE
 			self.tape_index-=1
 			self.program_position+=1
@@ -131,7 +161,7 @@ class BrainFuckInterpreter:
 			return SUCCESS
 		elif (command==']'):
 			temp_position=self.bracketControl.pop()
-	 		if (temp_position==-1):
+			if (temp_position==-1):
 				return MISMATCH_BRACKET
 			self.program_position=temp_position
 			return SUCCESS
@@ -144,7 +174,11 @@ class BrainFuckInterpreter:
 				inputchar=input("Input ONE character: ")
 			self.tape[self.tape_index]=ord(inputchar)
 			self.program_position+=1
-		elif (command==EOF
+		#elif (command==EOF TODO
+
+		else:
+			self.program_position+=1
+			return SUCCESS
 			
 
 class BrainFuckParser:
