@@ -18,8 +18,14 @@ def checkReturnStatus(returnCode):
 		exit(1)
 	else:
 		return 0
+
+def startInterpreter():
+	#TODO
+	pass
 def main():
-	if (len(sys.argv)!=3):
+	if (len(sys.argv)!=3 and sys.argv[len(sys.argv)-1]=="-"):
+		startInterpreter()
+	elif (len(sys.argv)!=3):
 		print("Usage: brainfucktoc Infile.bf Outfile.c")
 		exit()
 	#TODO: error handling on file open

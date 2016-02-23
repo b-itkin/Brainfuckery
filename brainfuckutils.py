@@ -91,6 +91,8 @@ class BrainFuckInterpreter:
 		for i in range(self.tapesize):
 			self.tape.append(0)
 	
+	def load
+	
 	def executeCommand(self,command):		
 		temp_position=0
 		inputchar="CC"		
@@ -142,6 +144,8 @@ class BrainFuckInterpreter:
 				inputchar=input("Input ONE character: ")
 			self.tape[self.tape_index]=ord(inputchar)
 			self.program_position+=1
+		elif (command==EOF
+			
 
 class BrainFuckParser:
 	program=""
