@@ -33,6 +33,7 @@ def checkReturnStatus(returnCode):
 		print("Runtime error: Maximum cell-size reached")
 		exit(4)
 	elif (returnCode==END):
+		print(" ") #There hasn't been a \n during execution necessarily
 		print("Runtime: Program end")
 		return 5
 	else:
